@@ -203,3 +203,33 @@ class HousePriceApp(QMainWindow, Ui_MainWindow):
         except Exception as e:
             QMessageBox.critical(self, "Lỗi", f"Lỗi nạp mô hình: {str(e)}")
 
+# --- Dự đoán giá nhà ---
+def do_prediction(self):
+   if self.lm is None:
+       QMessageBox.warning(self, "Lỗi", "Bạn cần huấn luyện hoặc nạp mô hình trước!")
+       return
+   try:
+       income = float(self.lineIncome.text())
+       age = float(self.lineAge.text())
+       rooms = float(self.lineRooms.text())
+       bedrooms = float(self.lineBedrooms.text())
+       population = float(self.linePopulation.text())
+
+
+       # Dùng DataFrame có feature names để tránh cảnh báo
+       X_new = pd.DataFrame(
+           [[income, age, rooms, bedrooms, population]],
+           columns=[
+               'Avg. Area Income',
+               'Avg. Area House Age',
+               'Avg. Area Number of Rooms',
+               'Avg. Area Number of Bedrooms',
+               'Area Population'
+           ]
+       )
+
+
+       prediction = self.lm.predict(X_new)[0]
+       self.labelResult.setText(f"💰 {prediction:,.2f}")
+   except Exception as e:
+       QMessageBox.critical(self, "Lỗi", f"Lỗi dự đoán: {str(e)}")
